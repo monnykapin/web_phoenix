@@ -79,12 +79,7 @@ function formatReference(value) {
   if (!value) return "";
   if (typeof value === "object") {
     return (
-      value.number ||
-      value.name ||
-      value.title ||
-      value.code ||
-      value._id ||
-      ""
+      value.number || value.name || value.title || value.code || value._id || ""
     );
   }
   return value;
@@ -119,6 +114,13 @@ function extractDayPart(value) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";
   return String(date.getDate()).padStart(2, "0");
+}
+
+function getCurrentMonth() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  return `${year}-${month}`;
 }
 
 // Build the payment date "YYYY-MM-DD": year/month come from the active month
@@ -159,7 +161,7 @@ function RentalsPage() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [monthFilter, setMonthFilter] = useState("");
+  const [monthFilter, setMonthFilter] = useState(getCurrentMonth);
   const [page, setPage] = useState(1);
 
   const [openMenuId, setOpenMenuId] = useState("");
@@ -344,7 +346,7 @@ function RentalsPage() {
 
   const availableRooms = useMemo(
     () => rooms.filter((room) => room.status !== "rented"),
-    [rooms]
+    [rooms],
   );
 
   const statRows = useMemo(() => {
@@ -352,9 +354,9 @@ function RentalsPage() {
       return [];
     }
 
-    return STAT_ROWS.map((row) => row.filter((card) => card.key in stats)).filter(
-      (row) => row.length > 0
-    );
+    return STAT_ROWS.map((row) =>
+      row.filter((card) => card.key in stats),
+    ).filter((row) => row.length > 0);
   }, [stats]);
 
   const clearFilters = () => {
@@ -543,9 +545,7 @@ function RentalsPage() {
 
     try {
       const accessToken = getAccessToken();
-      const rental = rentals.find(
-        (item) => (item._id || item.id) === rentalId,
-      );
+      const rental = rentals.find((item) => (item._id || item.id) === rentalId);
 
       // Selecting "Paid" records an actual payment instead of just flipping
       // the status: POST /rentals/:id/payments with { amount, paymentDate }.
@@ -860,7 +860,10 @@ function RentalsPage() {
                                           disabled={isBusy}
                                           onClick={() => {
                                             setStatusMenuId("");
-                                            handleUpdateStatus(key, option.value);
+                                            handleUpdateStatus(
+                                              key,
+                                              option.value,
+                                            );
                                           }}
                                         >
                                           {option.label}
@@ -893,7 +896,6 @@ function RentalsPage() {
                                 <span></span>
                                 <span></span>
                               </button>
-
 
                               {isMenuOpen
                                 ? createPortal(
@@ -1091,7 +1093,9 @@ function RentalsPage() {
                   {roomsError ? (
                     <span className="form-error">{roomsError}</span>
                   ) : null}
-                  {!roomsError && rooms.length > 0 && availableRooms.length === 0 ? (
+                  {!roomsError &&
+                  rooms.length > 0 &&
+                  availableRooms.length === 0 ? (
                     <span className="guest-section-copy">
                       No available rooms — every room is currently rented.
                     </span>
@@ -1423,4 +1427,3 @@ function RentalsPage() {
 }
 
 export default RentalsPage;
-

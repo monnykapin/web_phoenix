@@ -2,6 +2,7 @@
 
 ## What Works
 - **Authentication**: Login flow (JWT), logout with confirm dialog, protected routes, stored session in localStorage.
+  - **Login screen is a split-screen auth layout** (`/login`): branded visual panel on the left (`.auth-visual` — brand mark, headline, product-preview mock with status chips, feature pills) and the sign-in card on the right (`.auth-form-panel` → `.login-form`: email + password with show/hide toggle, inline `role="alert"` error, gradient primary CTA). Stacks to one column at ≤900px (preview hidden); feature pills hidden when the viewport is shorter than 800px.
 - **Dashboard shell**: Sidebar navigation (Monetary Contribution, Rental Rooms, Reservations, Reports, Settings), navbar with user + logout, footer.
 - **Monetary Contribution page** (`/dashboard`): list + pagination, search, status filter, create, update status, delete, toast/confirm. (Pre-existing; working.)
 - **Rental Rooms page** (`/dashboard/rentals`) — newly added:

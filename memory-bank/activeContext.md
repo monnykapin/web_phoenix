@@ -1,9 +1,17 @@
 # Active Context
 
 ## Current Focus
-Building out the **Rental Rooms** management page (`/dashboard/rentals`). This is the newest feature added during the latest session.
+Split-screen **login / auth screen** redesign (`/login`). The Rental Rooms page (`/dashboard/rentals`) remains the most recent feature work before this.
 
 ## Recent Changes (this session)
+1. **Login screen redesigned as a split-screen auth layout** (`/login`):
+   - `src/pages/LoginPage.jsx`: wrapper classes changed from `login-page`/`form-panel` → **`auth-page`** (grid `1.05fr 0.95fr`) + **`auth-form-panel`**. Logic unchanged (redirect if `hasAccessToken()`, `loginRequest` → `saveAuthSession` → `/dashboard`).
+   - `src/components/HeroPanel.jsx` (left column = visual panel, rebuilt): brand mark (`hero.png` in a rounded white tile) + "Phoenix Dashboard" wordmark, kicker/headline/subtext, a **product-preview mock** (browser chrome dots + `phoenix / rentals` mono URL, 3 stat tiles, 3 rental rows reusing the real `.status-chip--paid/pending/overdue` colors), and 3 feature pills. All markup/CSS — no new assets or dependencies.
+   - `src/components/LoginForm.jsx` (right column = form card, rebuilt): header (kicker + `h2` "Sign in" + subtext), grouped `.login-field` email + password inputs, **password show/hide toggle** (`.login-password-toggle`, inline SVG eye icons, `aria-pressed`), inline `.form-error` with `role="alert"` + `id="login-error"`, inputs wired with `aria-invalid` / `aria-describedby`, `autoComplete` + `name` attributes, `email.trim()` on submit, and the gradient primary CTA `.login-submit`.
+   - `src/App.css`: replaced the old login block (`.login-page`, `.hero-panel`, `.hero-art`, `.form-panel`) with an `/* Auth screen (split layout) */` section: `.auth-page`, `.auth-visual` (same teal `#0f766e` → `#0c4a6e` gradient as the CTA, with amber/mint auras), `.auth-brand*`, `.auth-preview*`, `.auth-features`, `.auth-form-panel`, `.login-form*`, `.login-password*`, `.login-submit`, `.login-form-note`. Removed the now-unused `.hero-art` rules; kept `.hero-kicker` / `.hero-subtext` (still shared with `DashboardLayout`).
+   - Responsive: `@media (max-width: 900px)` stacks to one column, hides `.auth-preview`, tightens paddings. New `@media (min-width: 901px) and (max-height: 800px)` hides `.auth-features` so the visual panel never clips on short laptops.
+   - Validated with `npm run build` (passes) and a temporary SSR render smoke test (`vite` `ssrLoadModule` + `react-dom/server`) — all markup/labels verified; temp script deleted afterwards.
+
 1. **Added `src/services/rentals.js`** — API client covering all rental endpoints:
    - `fetchRentals` — `GET /rentals` with `offset`, `limit`, `status`, `month`; returns `{ rentals, total, limit, offset, stats }`.
    - `fetchRental` — `GET /rentals/:id`.
