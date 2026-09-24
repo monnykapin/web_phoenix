@@ -21,9 +21,9 @@ function LoginPage() {
   };
 
   return (
-    <main className="login-page">
+    <main className="auth-page">
       <HeroPanel />
-      <section className="form-panel">
+      <section className="auth-form-panel">
         <LoginForm onLogin={handleLogin} />
       </section>
     </main>

@@ -24,6 +24,9 @@ src/
 ### 1. Protected Routing
 `ProtectedRoute` wraps dashboard pages and checks `hasAccessToken()` (localStorage). Redirects to `/login` if absent. NOTE: it only checks that a token exists, not that it's valid — a stale token passes the check but API calls then 401.
 
+### 1b. Split-screen auth layout (login)
+`LoginPage` renders `<main class="auth-page">` = CSS grid `1.05fr 0.95fr` with `HeroPanel` (visual column, `.auth-visual`) + `<section class="auth-form-panel">` wrapping `LoginForm`. The visual column is a branded deep-teal panel (`#0f766e → #0c4a6e`) containing a **pure-CSS product-preview mock** (reuses `.status-chip` variants for the rental rows) — no image assets beyond `assets/hero.png` used as the brand mark. Both columns are presentational only; all auth logic stays in `LoginPage`/`auth.js`.
+
 ### 2. Services Layer (fetch + Bearer token)
 Each service builds the API base from env and attaches `Authorization: Bearer <token>`.
 - `authHeaders(accessToken)` helper shared pattern across `guests.js` and `rentals.js`.
