@@ -1,3 +1,5 @@
+import { authFetch } from "./auth";
+
 const API_BASE_URL = (
   window.__ENV__?.BASE_API_URL ||
   import.meta.env.BASE_API_URL ||
@@ -29,9 +31,13 @@ export async function fetchGuests(accessToken, options = {}) {
     limit: String(limit),
   });
 
-  const response = await fetch(`${GUESTS_API_BASE}?${query}`, {
+  const response = await authFetch(`${GUESTS_API_BASE}?${query}`, {
     headers: authHeaders(accessToken),
   });
+
+  if (response.status === 401) {
+    throw new Error("Session expired. Please log in again.");
+  }
 
   if (!response.ok) {
     throw new Error("Unable to load guests list.");
@@ -41,7 +47,7 @@ export async function fetchGuests(accessToken, options = {}) {
 }
 
 export async function updateGuestStatus(accessToken, guestId, status) {
-  const response = await fetch(`${GUESTS_API_BASE}/${guestId}`, {
+  const response = await authFetch(`${GUESTS_API_BASE}/${guestId}`, {
     method: "PATCH",
     headers: {
       ...authHeaders(accessToken),
@@ -49,6 +55,10 @@ export async function updateGuestStatus(accessToken, guestId, status) {
     },
     body: JSON.stringify({ status }),
   });
+
+  if (response.status === 401) {
+    throw new Error("Session expired. Please log in again.");
+  }
 
   if (!response.ok) {
     throw new Error("Unable to update guest status.");
@@ -59,7 +69,7 @@ export async function updateGuestStatus(accessToken, guestId, status) {
 }
 
 export async function createGuest(accessToken, guestData) {
-  const response = await fetch(GUESTS_API_BASE, {
+  const response = await authFetch(GUESTS_API_BASE, {
     method: "POST",
     headers: {
       ...authHeaders(accessToken),
@@ -67,6 +77,10 @@ export async function createGuest(accessToken, guestData) {
     },
     body: JSON.stringify(guestData),
   });
+
+  if (response.status === 401) {
+    throw new Error("Session expired. Please log in again.");
+  }
 
   if (!response.ok) {
     throw new Error("Unable to create monetary contribution.");
@@ -77,10 +91,14 @@ export async function createGuest(accessToken, guestData) {
 }
 
 export async function deleteGuest(accessToken, guestId) {
-  const response = await fetch(`${GUESTS_API_BASE}/${guestId}`, {
+  const response = await authFetch(`${GUESTS_API_BASE}/${guestId}`, {
     method: "DELETE",
     headers: authHeaders(accessToken),
   });
+
+  if (response.status === 401) {
+    throw new Error("Session expired. Please log in again.");
+  }
 
   if (!response.ok) {
     throw new Error("Unable to delete monetary contribution.");

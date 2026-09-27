@@ -1,3 +1,5 @@
+import { authFetch } from "./auth";
+
 const API_BASE_URL = (
   window.__ENV__?.BASE_API_URL ||
   import.meta.env.BASE_API_URL ||
@@ -34,13 +36,24 @@ export async function fetchRentals(accessToken, options = {}) {
 
   let response;
   try {
-    response = await fetch(`${RENTALS_API_BASE}?${query}`, {
+    response = await authFetch(`${RENTALS_API_BASE}?${query}`, {
       headers: authHeaders(accessToken),
     });
-  } catch {
+  } catch (error) {
+    if (
+      error?.message?.includes("Session expired") ||
+      error?.message?.includes("log in")
+    ) {
+      throw error;
+    }
     throw new Error(
       "Unable to reach the server. The API may be rate-limited — please wait a moment and try again.",
+      { cause: error },
     );
+  }
+
+  if (response.status === 401) {
+    throw new Error("Session expired. Please log in again.");
   }
 
   if (!response.ok) {
@@ -66,7 +79,7 @@ export async function fetchRentals(accessToken, options = {}) {
 }
 
 export async function fetchRental(accessToken, rentalId) {
-  const response = await fetch(`${RENTALS_API_BASE}/${rentalId}`, {
+  const response = await authFetch(`${RENTALS_API_BASE}/${rentalId}`, {
     headers: authHeaders(accessToken),
   });
 
@@ -78,7 +91,7 @@ export async function fetchRental(accessToken, rentalId) {
 }
 
 export async function fetchRentalStatus(accessToken, rentalId) {
-  const response = await fetch(`${RENTALS_API_BASE}/${rentalId}/status`, {
+  const response = await authFetch(`${RENTALS_API_BASE}/${rentalId}/status`, {
     headers: authHeaders(accessToken),
   });
 
@@ -92,7 +105,7 @@ export async function fetchRentalStatus(accessToken, rentalId) {
 }
 
 export async function updateRentalStatus(accessToken, rentalId, status) {
-  const response = await fetch(`${RENTALS_API_BASE}/${rentalId}/status`, {
+  const response = await authFetch(`${RENTALS_API_BASE}/${rentalId}/status`, {
     method: "PUT",
     headers: {
       ...authHeaders(accessToken),
@@ -110,7 +123,7 @@ export async function updateRentalStatus(accessToken, rentalId, status) {
 }
 
 export async function createRental(accessToken, rentalData) {
-  const response = await fetch(RENTALS_API_BASE, {
+  const response = await authFetch(RENTALS_API_BASE, {
     method: "POST",
     headers: {
       ...authHeaders(accessToken),
@@ -127,7 +140,7 @@ export async function createRental(accessToken, rentalData) {
 }
 
 export async function updateRental(accessToken, rentalId, rentalData) {
-  const response = await fetch(`${RENTALS_API_BASE}/${rentalId}`, {
+  const response = await authFetch(`${RENTALS_API_BASE}/${rentalId}`, {
     method: "PUT",
     headers: {
       ...authHeaders(accessToken),
@@ -143,8 +156,12 @@ export async function updateRental(accessToken, rentalId, rentalData) {
   return normalizeRental(await response.json());
 }
 
-export async function recordRentalPayment(accessToken, rentalId, paymentData = {}) {
-  const response = await fetch(`${RENTALS_API_BASE}/${rentalId}/payments`, {
+export async function recordRentalPayment(
+  accessToken,
+  rentalId,
+  paymentData = {},
+) {
+  const response = await authFetch(`${RENTALS_API_BASE}/${rentalId}/payments`, {
     method: "POST",
     headers: {
       ...authHeaders(accessToken),
@@ -161,7 +178,7 @@ export async function recordRentalPayment(accessToken, rentalId, paymentData = {
 }
 
 export async function fetchRentalStats(accessToken) {
-  const response = await fetch(`${RENTALS_API_BASE}/stats`, {
+  const response = await authFetch(`${RENTALS_API_BASE}/stats`, {
     headers: authHeaders(accessToken),
   });
 
@@ -173,7 +190,7 @@ export async function fetchRentalStats(accessToken) {
 }
 
 export async function deleteRental(accessToken, rentalId) {
-  const response = await fetch(`${RENTALS_API_BASE}/${rentalId}`, {
+  const response = await authFetch(`${RENTALS_API_BASE}/${rentalId}`, {
     method: "DELETE",
     headers: authHeaders(accessToken),
   });
