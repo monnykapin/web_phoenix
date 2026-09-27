@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { toast } from "../lib/toast";
 import { useMenuInViewport } from "../lib/popupMenu";
 import DashboardLayout from "../components/DashboardLayout";
-import { getAccessToken, getStoredUser } from "../services/auth";
+import { getAccessToken } from "../services/auth";
 import {
   createGuest,
   deleteGuest,
@@ -15,7 +15,6 @@ function DashboardPage() {
   const pageSize = 25;
   const actionAreaRef = useRef(null);
   const popupMenuRef = useRef(null);
-  const user = useMemo(() => getStoredUser(), []);
   const [guests, setGuests] = useState([]);
   const [loadingGuests, setLoadingGuests] = useState(true);
   const [guestsError, setGuestsError] = useState("");

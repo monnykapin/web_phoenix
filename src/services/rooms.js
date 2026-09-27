@@ -1,3 +1,5 @@
+import { authFetch } from "./auth";
+
 const API_BASE_URL = (
   window.__ENV__?.BASE_API_URL ||
   import.meta.env.BASE_API_URL ||
@@ -30,13 +32,24 @@ export async function fetchRooms(accessToken, options = {}) {
 
   let response;
   try {
-    response = await fetch(`${ROOMS_API_BASE}?${query}`, {
+    response = await authFetch(`${ROOMS_API_BASE}?${query}`, {
       headers: authHeaders(accessToken),
     });
-  } catch {
+  } catch (error) {
+    if (
+      error?.message?.includes("Session expired") ||
+      error?.message?.includes("log in")
+    ) {
+      throw error;
+    }
     throw new Error(
       "Unable to reach the server. The API may be rate-limited — please wait a moment and try again.",
+      { cause: error },
     );
+  }
+
+  if (response.status === 401) {
+    throw new Error("Session expired. Please log in again.");
   }
 
   if (!response.ok) {
@@ -49,7 +62,7 @@ export async function fetchRooms(accessToken, options = {}) {
 export async function createRoom(accessToken, roomData) {
   let response;
   try {
-    response = await fetch(ROOMS_API_BASE, {
+    response = await authFetch(ROOMS_API_BASE, {
       method: "POST",
       headers: {
         ...authHeaders(accessToken),
@@ -57,10 +70,21 @@ export async function createRoom(accessToken, roomData) {
       },
       body: JSON.stringify(roomData),
     });
-  } catch {
+  } catch (error) {
+    if (
+      error?.message?.includes("Session expired") ||
+      error?.message?.includes("log in")
+    ) {
+      throw error;
+    }
     throw new Error(
       "Unable to reach the server. The API may be rate-limited — please wait a moment and try again.",
+      { cause: error },
     );
+  }
+
+  if (response.status === 401) {
+    throw new Error("Session expired. Please log in again.");
   }
 
   if (!response.ok) {

@@ -7,6 +7,8 @@ import ReportsPage from "./pages/ReportsPage";
 import RentalsPage from "./pages/RentalsPage";
 import ReservationsPage from "./pages/ReservationsPage";
 import SettingsPage from "./pages/SettingsPage";
+import ProjectsPage from "./pages/ProjectsPage";
+import ProjectDetailPage from "./pages/ProjectDetailPage";
 
 function App() {
   return (
@@ -34,6 +36,22 @@ function App() {
         element={
           <ProtectedRoute>
             <ReservationsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/projects"
+        element={
+          <ProtectedRoute>
+            <ProjectsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/projects/:id"
+        element={
+          <ProtectedRoute>
+            <ProjectDetailPage />
           </ProtectedRoute>
         }
       />

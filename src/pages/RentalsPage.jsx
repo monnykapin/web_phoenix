@@ -362,7 +362,7 @@ function RentalsPage() {
   const clearFilters = () => {
     setSearchTerm("");
     setStatusFilter("all");
-    setMonthFilter("");
+    setMonthFilter(getCurrentMonth());
     setPage(1);
   };
 
