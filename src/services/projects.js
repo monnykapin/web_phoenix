@@ -140,3 +140,142 @@ export async function createProject(accessToken, projectData) {
   const payload = await response.json();
   return payload?.project || payload?.data || payload;
 }
+
+export async function updateProject(accessToken, projectId, projectData) {
+  let response;
+  try {
+    response = await authFetch(`${PROJECTS_API_BASE}/${projectId}`, {
+      method: "PUT",
+      headers: {
+        ...authHeaders(accessToken),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(projectData),
+    });
+    if (response.status === 405) {
+      response = await authFetch(`${PROJECTS_API_BASE}/${projectId}`, {
+        method: "PATCH",
+        headers: {
+          ...authHeaders(accessToken),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(projectData),
+      });
+    }
+  } catch (error) {
+    if (
+      error?.message?.includes("Session expired") ||
+      error?.message?.includes("log in")
+    ) {
+      throw error;
+    }
+    throw new Error(
+      "Unable to reach the server. The API may be rate-limited — please wait a moment and try again.",
+      { cause: error },
+    );
+  }
+
+  if (response.status === 401) {
+    throw new Error("Session expired. Please log in again.");
+  }
+
+  if (!response.ok) {
+    const errorBody = await response.json().catch(() => null);
+    throw new Error(
+      errorBody?.message ||
+        "Unable to update project. Please verify the information and try again.",
+    );
+  }
+
+  const payload = await response.json();
+  return payload?.project || payload?.data || payload;
+}
+
+export async function updateProjectStatus(accessToken, projectId, status) {
+  let response;
+  try {
+    response = await authFetch(`${PROJECTS_API_BASE}/${projectId}`, {
+      method: "PUT",
+      headers: {
+        ...authHeaders(accessToken),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status }),
+    });
+
+    if (response.status === 405) {
+      response = await authFetch(`${PROJECTS_API_BASE}/${projectId}`, {
+        method: "PATCH",
+        headers: {
+          ...authHeaders(accessToken),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status }),
+      });
+    } else if (response.status === 404) {
+      response = await authFetch(`${PROJECTS_API_BASE}/${projectId}/status`, {
+        method: "PUT",
+        headers: {
+          ...authHeaders(accessToken),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status }),
+      });
+    }
+  } catch (error) {
+    if (
+      error?.message?.includes("Session expired") ||
+      error?.message?.includes("log in")
+    ) {
+      throw error;
+    }
+    throw new Error(
+      "Unable to reach the server. The API may be rate-limited — please wait a moment and try again.",
+      { cause: error },
+    );
+  }
+
+  if (response.status === 401) {
+    throw new Error("Session expired. Please log in again.");
+  }
+
+  if (!response.ok) {
+    const errorBody = await response.json().catch(() => null);
+    throw new Error(errorBody?.message || "Unable to update project status.");
+  }
+
+  const payload = await response.json();
+  return payload?.project || payload?.data || payload;
+}
+
+export async function deleteProject(accessToken, projectId) {
+  let response;
+  try {
+    response = await authFetch(`${PROJECTS_API_BASE}/${projectId}`, {
+      method: "DELETE",
+      headers: authHeaders(accessToken),
+    });
+  } catch (error) {
+    if (
+      error?.message?.includes("Session expired") ||
+      error?.message?.includes("log in")
+    ) {
+      throw error;
+    }
+    throw new Error(
+      "Unable to reach the server. The API may be rate-limited — please wait a moment and try again.",
+      { cause: error },
+    );
+  }
+
+  if (response.status === 401) {
+    throw new Error("Session expired. Please log in again.");
+  }
+
+  if (!response.ok) {
+    const errorBody = await response.json().catch(() => null);
+    throw new Error(errorBody?.message || "Unable to delete project.");
+  }
+
+  return true;
+}
